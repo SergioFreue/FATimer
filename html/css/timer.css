@@ -1,0 +1,33 @@
+.monospace {
+    font-variant-numeric: tabular-nums;
+}
+.timer {
+    font-size: 20vw;
+}
+.controls .btn {
+    font-size: 36pt;
+    width: 5em;
+    /*border-color: black;*/
+}
+.plan {
+    margin-top: 2em;
+    font-size: 16pt;
+}
+.plan .header {
+    font-style: italic;
+    color: darkgrey;
+}
+.plan .apnea.selected {
+    background-color: lightgrey;
+}
+.plan .digit.selected {
+    background-color: darkgrey;
+}
+.plan .apnea.running {
+    border-style: solid;
+    border-width: medium;
+    border-color: #28a745;
+}
+.plan .time.running {
+    background-color: #28a745;
+}
