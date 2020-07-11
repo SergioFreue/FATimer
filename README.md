@@ -1,0 +1,2 @@
+# FATimer
+Freediving training timer
