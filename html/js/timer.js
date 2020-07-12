@@ -87,7 +87,7 @@ function removeApnea() {
 
 function addApnea() {
     $('.plan .selected').removeClass('selected')
-    let lastRow = $('.plan .apnea').last()
+    var lastRow = $('.plan .apnea').last()
     lastRow.addClass('selected')
     lastRow.find('.digit').eq(0).addClass('selected')
     parseCommandKey({key: 'ArrowDown'})
@@ -194,9 +194,9 @@ function parseCommandKey(event) {
             break;
         case "ArrowDown":
             selectDigit((allDigits, digit) => {
-                let thisRow = digit.closest('.apnea');
-                let digitIndex = thisRow.find('.digit').index(digit)
-                let nextRow = thisRow.next('.apnea');
+                var thisRow = digit.closest('.apnea');
+                var digitIndex = thisRow.find('.digit').index(digit)
+                var nextRow = thisRow.next('.apnea');
                 if (!nextRow.length) {
                     nextRow = thisRow.clone(true)
                     nextRow.insertAfter(thisRow)
@@ -213,10 +213,10 @@ function parseCommandKey(event) {
         case "Delete":
         case "Backspace":
             selectDigit((allDigits, digit) => {
-                let thisRow = digit.closest('.apnea');
-                let nextRow = thisRow.next('.apnea');
+                var thisRow = digit.closest('.apnea');
+                var nextRow = thisRow.next('.apnea');
                 if (nextRow.length) {
-                    let digitIndex = thisRow.find('.digit').index(digit)
+                    var digitIndex = thisRow.find('.digit').index(digit)
                     thisRow.remove()
                     return nextRow.find('.digit').eq(digitIndex)
                 } else

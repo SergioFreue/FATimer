@@ -7,17 +7,17 @@
     <script src="js/timer.js"></script>
 </head>
 <body>
-<div class="container">
+<div class="container-fluid">
 
-    <div id="timer" class="timer monospace">
-        00:00.0
-    </div>
+    <div class="row">
+        <div id="timer" class="timer monospace col-10">00:00.0</div>
 
-    <div class="controls" style="display: none">
-        <button type="button" class="btn rounded-pill btn-success btn-start btn-default">Start</button>
-        <button type="button" class="btn rounded-pill btn-success btn-continue btn-default">Continue</button>
-        <button type="button" class="btn rounded-pill btn-secondary btn-pause btn-default">Pause</button>
-        <button type="button" class="btn rounded-pill btn-danger btn-clear">Clear</button>
+        <div class="controls col-2" style="display: none">
+            <button type="button" class="btn rounded-pill btn-success btn-start btn-default">Start</button>
+            <button type="button" class="btn rounded-pill btn-success btn-continue btn-default">Continue</button>
+            <button type="button" class="btn rounded-pill btn-secondary btn-pause btn-default">Pause</button>
+            <button type="button" class="btn rounded-pill btn-danger btn-clear">Clear</button>
+        </div>
     </div>
 
     <div class="plan">
