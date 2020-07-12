@@ -72,6 +72,31 @@ function pauseTimer() {
     $('.btn.btn-clear').show()
 }
 
+function timeClick() {
+    $('.plan .selected').removeClass('selected')
+    $(this).addClass('selected')
+    $(this).closest('.apnea').addClass('selected')
+}
+
+function removeApnea() {
+    $('.plan .selected').removeClass('selected')
+    $(this).closest('.apnea').addClass('selected')
+    $(this).closest('.apnea').find('.digit').eq(0).addClass('selected')
+    parseCommandKey({key: 'Delete'})
+}
+
+function addApnea() {
+    $('.plan .selected').removeClass('selected')
+    let lastRow = $('.plan .apnea').last()
+    lastRow.addClass('selected')
+    lastRow.find('.digit').eq(0).addClass('selected')
+    parseCommandKey({key: 'ArrowDown'})
+}
+
+function digitClick() {
+    parseKey({keyCode: $(this).text().charCodeAt(0)})
+}
+
 function digs(num) {
     num = num % 100
     return num > 9? num.toString(): '0'+num
@@ -153,10 +178,10 @@ function parseKey(event) {
     }
 }
 
-function parseArrowKey(event) {
+function parseCommandKey(event) {
     switch (event.key) {
         case "ArrowLeft":
-            selectDigit((allDigits, digit) => allDigits.eq(allDigits.index(digit) - 1))
+            selectDigit((allDigits, digit) => allDigits.eq(Math.max(allDigits.index(digit) - 1, 0)))
             break;
         case "ArrowRight":
             selectDigit((allDigits, digit) => allDigits.eq(allDigits.index(digit) + 1))
@@ -187,13 +212,16 @@ function parseArrowKey(event) {
             break;
         case "Delete":
         case "Backspace":
-            let thisRow = $('.plan .apnea.selected')
-            let nextRow = thisRow.next('.apnea');
-            if (nextRow.length) {
-                thisRow.remove()
-                nextRow.addClass('selected')
-                nextRow.find('.digit').eq(0).addClass('selected')
-            }
+            selectDigit((allDigits, digit) => {
+                let thisRow = digit.closest('.apnea');
+                let nextRow = thisRow.next('.apnea');
+                if (nextRow.length) {
+                    let digitIndex = thisRow.find('.digit').index(digit)
+                    thisRow.remove()
+                    return nextRow.find('.digit').eq(digitIndex)
+                } else
+                    return digit;
+            })
             break;
     }
 }
@@ -223,8 +251,12 @@ $(() => {
     $('.btn-continue').click(continueTimer)
     $('.btn-pause').click(pauseTimer)
     $('.btn-clear').click(clearTimer)
+    $('.digit').click(timeClick)
+    $('.btn-remove').click(removeApnea)
+    $('.btn-add').click(addApnea)
+    $('.btn-digit').click(digitClick)
     $(document).keypress(parseKey)
-    $(document).keydown(parseArrowKey)
+    $(document).keydown(parseCommandKey)
 
     prepareAudio()
     clearTimer()

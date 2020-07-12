@@ -3,15 +3,16 @@
 }
 .timer {
     font-size: 20vw;
+    text-align: center;
 }
 .controls .btn {
-    font-size: 36pt;
+    font-size: 5vw;
     width: 5em;
     /*border-color: black;*/
 }
 .plan {
     margin-top: 2em;
-    font-size: 16pt;
+    font-size: 3vw;
 }
 .plan .header {
     font-style: italic;
@@ -30,4 +31,16 @@
 }
 .plan .time.running {
     background-color: #28a745;
+}
+.plan .apnea-controls {
+    display: flex;
+    align-items: center;
+}
+.plan .keyboard .btn-digit {
+    text-align: center;
+    width: 10%;
+    max-width: 10%;
+    flex: 0 0 10%;
+    height: 8vw;
+    padding-top: 1.6vw;
 }
