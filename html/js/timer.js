@@ -1,6 +1,5 @@
 function extractMillis(timeElement) {
     var digits = timeElement.find('.digit').text().split('').map(digit => parseInt(digit))
-    // console.log('digits=%o for %o', digits, timeElement)
     return 1000 * (60 * digits[0] + 10 * digits[1] + digits[2])
 }
 
@@ -21,16 +20,24 @@ function getStopwatchMillis() {
 function clearTimer() {
     console.log('CLEAR')
     timer && clearInterval(timer)
+
+    $('#timer').text(formatMillis(0))
     $('.btn.btn-start').show()
     $('.btn.btn-continue').hide()
     $('.btn.btn-pause').hide()
     $('.btn.btn-clear').hide()
     $('.controls').show()
+    $('.keyboard').show()
 
     $('.plan .running').removeClass('running')
     $('.plan .selected').removeClass('selected')
     $('.plan .apnea').eq(0).addClass('selected')
     $('.plan .digit').eq(0).addClass('selected')
+
+    if (lastPlayedAudio && !lastPlayedAudio.ended) {
+        lastPlayedAudio.pause()
+    }
+    lastPlayedAudio = undefined
 }
 
 function setParamsAndStartTimer() {
@@ -39,6 +46,7 @@ function setParamsAndStartTimer() {
     remainingMillis = getCountdownMillis()
     nextAudioIdx = audios.length - 1
     while (nextAudioIdx >= 0 && audios[nextAudioIdx].millis > remainingMillis) nextAudioIdx--
+    lastPlayedAudio = undefined
     continueTimer()
 }
 
@@ -46,6 +54,7 @@ function startTimer() {
     console.log('START')
     $('.plan .apnea').eq(0).addClass('running')
     $('.plan .selected').removeClass('selected')
+    $('.keyboard').hide()
     setParamsAndStartTimer();
 }
 
@@ -58,6 +67,7 @@ function continueTimer() {
     $('.btn.btn-continue').hide()
     $('.btn.btn-pause').show()
     $('.btn.btn-clear').show()
+    if (lastPlayedAudio && !lastPlayedAudio.ended) lastPlayedAudio.play()
 }
 
 function pauseTimer() {
@@ -70,6 +80,7 @@ function pauseTimer() {
     $('.btn.btn-continue').show()
     $('.btn.btn-pause').hide()
     $('.btn.btn-clear').show()
+    if (lastPlayedAudio && !lastPlayedAudio.ended) lastPlayedAudio.pause()
 }
 
 function timeClick() {
@@ -82,19 +93,16 @@ function removeApnea() {
     $('.plan .selected').removeClass('selected')
     $(this).closest('.apnea').addClass('selected')
     $(this).closest('.apnea').find('.digit').eq(0).addClass('selected')
-    parseCommandKey({key: 'Delete'})
+    parseKey({key: 'Delete'})
 }
 
 function addApnea() {
-    $('.plan .selected').removeClass('selected')
-    var lastRow = $('.plan .apnea').last()
-    lastRow.addClass('selected')
-    lastRow.find('.digit').eq(0).addClass('selected')
-    parseCommandKey({key: 'ArrowDown'})
+    parseKey({key: 'End'})
+    parseKey({key: 'ArrowDown'})
 }
 
 function digitClick() {
-    parseKey({keyCode: $(this).text().charCodeAt(0)})
+    parseKey({key: $(this).text().charCode(0)})
 }
 
 function digs(num) {
@@ -122,13 +130,16 @@ function countdownTick() {
         var publishMillis = endMillis - nowMillis;
         $('#timer').text(formatMillis(publishMillis))
         if (nextAudioIdx >= 0 && publishMillis < audios[nextAudioIdx].millis) {
-            audios[nextAudioIdx--].audio.play()
+            lastPlayedAudio = audios[nextAudioIdx--].audio
+            lastPlayedAudio.load()
+            lastPlayedAudio.play()
         }
     }
 }
 
 function stopwatchTick() {
     var nowMillis = new Date().getTime()
+    $('#timer').text(formatMillis(passedMillis + nowMillis - startedMillis))
     if (nowMillis > endMillis) {
         clearInterval(timer)
         console.log('END')
@@ -145,8 +156,6 @@ function stopwatchTick() {
             $('.btn.btn-pause').hide()
             $('.btn.btn-clear').show()
         }
-    } else {
-        $('#timer').text(formatMillis(passedMillis + nowMillis - startedMillis))
     }
 }
 
@@ -155,44 +164,34 @@ function selectDigit(nextDigitFn) {
     var digit = $('.plan .digit.selected')
     var nextDigit = nextDigitFn(allDigits, digit)
     if (nextDigit.length) {
-        digit.removeClass('selected')
+        $('.plan .selected').removeClass('selected')
         nextDigit.addClass('selected')
-        digit.closest('.apnea').removeClass('selected')
         nextDigit.closest('.apnea').addClass('selected')
     }
 }
 
 function parseKey(event) {
-    var keycode = event.keyCode || event.which
-    var keychar = String.fromCharCode(keycode)
-    // console.log('keycode=%d, keychar="%s"', keycode, keychar)
-    if (keychar === ' ') {
-        $('.controls .btn-default:visible').click()
-    } else if (keychar.toLowerCase() === 'c') {
-        $('.btn-clear:visible').click()
-    } else if (keychar >= '0' && keychar <= '9') {
-        selectDigit((allDigits, digit) => {
-            digit.text(keychar)
-            return allDigits.eq(allDigits.index(digit) + 1)
-        })
-    }
-}
-
-function parseCommandKey(event) {
     switch (event.key) {
-        case "ArrowLeft":
+        case ' ':
+            $('.controls .btn-default:visible').click()
+            break;
+        case 'c':
+        case 'C':
+            $('.btn-clear:visible').click()
+            break;
+        case 'ArrowLeft':
             selectDigit((allDigits, digit) => allDigits.eq(Math.max(allDigits.index(digit) - 1, 0)))
             break;
-        case "ArrowRight":
+        case 'ArrowRight':
             selectDigit((allDigits, digit) => allDigits.eq(allDigits.index(digit) + 1))
             break;
-        case "ArrowUp":
+        case 'ArrowUp':
             selectDigit((allDigits, digit) => {
                 var digitIndex = digit.closest('.apnea').find('.digit').index(digit)
                 return digit.closest('.apnea').prev('.apnea').find('.digit').eq(digitIndex)
             })
             break;
-        case "ArrowDown":
+        case 'ArrowDown':
             selectDigit((allDigits, digit) => {
                 var thisRow = digit.closest('.apnea');
                 var digitIndex = thisRow.find('.digit').index(digit)
@@ -200,18 +199,24 @@ function parseCommandKey(event) {
                 if (!nextRow.length) {
                     nextRow = thisRow.clone(true)
                     nextRow.insertAfter(thisRow)
+                    digitIndex = 0
                 }
                 return nextRow.find('.digit').eq(digitIndex)
             })
             break;
-        case "Home":
+        case 'Home':
             selectDigit((allDigits, digit) => allDigits.eq(0))
             break;
-        case "End":
-            selectDigit((allDigits, digit) => allDigits.eq(allDigits.length - 1))
+        case 'End':
+            selectDigit((allDigits, digit) => allDigits.eq(allDigits.length - 1).closest('.apnea').find('.digit').eq(0))
             break;
-        case "Delete":
-        case "Backspace":
+        case '+':
+        case 'Insert':
+            addApnea()
+            break;
+        case '-':
+        case 'Delete':
+        case 'Backspace':
             selectDigit((allDigits, digit) => {
                 var thisRow = digit.closest('.apnea');
                 var nextRow = thisRow.next('.apnea');
@@ -220,8 +225,16 @@ function parseCommandKey(event) {
                     thisRow.remove()
                     return nextRow.find('.digit').eq(digitIndex)
                 } else
-                    return digit;
+                    return digit
             })
+            break;
+        default:
+            if (event.key >= '0' && event.key <= '9') {
+                selectDigit((allDigits, digit) => {
+                    digit.text(event.key)
+                    return allDigits.eq(allDigits.index(digit) + 1)
+                })
+            }
             break;
     }
 }
@@ -244,6 +257,7 @@ var passedMillis
 var remainingMillis
 var timer
 var timerFunction
+var lastPlayedAudio
 var nextAudioIdx
 
 $(() => {
@@ -255,8 +269,7 @@ $(() => {
     $('.btn-remove').click(removeApnea)
     $('.btn-add').click(addApnea)
     $('.btn-digit').click(digitClick)
-    $(document).keypress(parseKey)
-    $(document).keydown(parseCommandKey)
+    $(document).keydown(parseKey)
 
     prepareAudio()
     clearTimer()

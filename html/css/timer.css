@@ -2,7 +2,7 @@
     font-variant-numeric: tabular-nums;
 }
 .timer {
-    font-size: 18vw;
+    font-size: 20vw;
     text-align: center;
     line-height: 17vw;
 }
@@ -19,11 +19,13 @@
     margin-top: 2vw;
 }
 .plan {
-    font-size: 3vw;
+    font-size: 5vh;
+    line-height: 7vh;
 }
 .plan .header {
     font-style: italic;
     color: darkgrey;
+    font-size: 3vh;
 }
 .plan .apnea.selected {
     background-color: lightgrey;
@@ -47,14 +49,33 @@
     width: 2.2em;
     font-size: 70%;
 }
-.plan .keyboard {
+@media screen and (orientation:portrait) {
+    .keyboard {
+        font-size: 8vw;
+        place-content: center;
+    }
+    .keyboard .btn-digit {
+        width: 16%;
+        height: 16vw;
+        margin-left: 5%;
+        margin-right: 5%;
+    }
+}
+@media screen and (orientation:landscape) {
+    .keyboard {
+        font-size: 3vw;
+    }
+    .keyboard .btn-digit {
+        width: 8%;
+        height: 8vw;
+        margin-left: 1%;
+        margin-right: 1%;
+    }
+}
+.keyboard {
     margin-top: 0.3em;
 }
-.plan .keyboard .btn-digit {
+.keyboard .btn-digit {
     text-align: center;
-    width: 10%;
-    max-width: 10%;
-    flex: 0 0 10%;
-    height: 8vw;
     padding-top: 1.6vw;
 }
