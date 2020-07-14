@@ -102,7 +102,7 @@ function addApnea() {
 }
 
 function digitClick() {
-    parseKey({key: $(this).text().charCode(0)})
+    parseKey({key: $(this).text().substr(0, 1)})
 }
 
 function digs(num) {
@@ -163,7 +163,7 @@ function selectDigit(nextDigitFn) {
     var allDigits = $('.plan .digit')
     var digit = $('.plan .digit.selected')
     var nextDigit = nextDigitFn(allDigits, digit)
-    if (nextDigit.length) {
+    if (nextDigit && nextDigit.length) {
         $('.plan .selected').removeClass('selected')
         nextDigit.addClass('selected')
         nextDigit.closest('.apnea').addClass('selected')
@@ -171,7 +171,8 @@ function selectDigit(nextDigitFn) {
 }
 
 function parseKey(event) {
-    switch (event.key) {
+    var key = event.key;
+    switch (key) {
         case ' ':
             $('.controls .btn-default:visible').click()
             break;
@@ -229,10 +230,13 @@ function parseKey(event) {
             })
             break;
         default:
-            if (event.key >= '0' && event.key <= '9') {
+            if (key >= '0' && key <= '9') {
                 selectDigit((allDigits, digit) => {
-                    digit.text(event.key)
-                    return allDigits.eq(allDigits.index(digit) + 1)
+                    var digitIndex = allDigits.index(digit);
+                    if (digitIndex % 3 !== 1 || key <= 5) {
+                        digit.text(key)
+                        return allDigits.eq(digitIndex + 1)
+                    }
                 })
             }
             break;
