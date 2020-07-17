@@ -221,12 +221,17 @@ function parseKey(event) {
             selectDigit((allDigits, digit) => {
                 var thisRow = digit.closest('.apnea');
                 var nextRow = thisRow.next('.apnea');
+                var digitIndex = thisRow.find('.digit').index(digit)
                 if (nextRow.length) {
-                    var digitIndex = thisRow.find('.digit').index(digit)
                     thisRow.remove()
                     return nextRow.find('.digit').eq(digitIndex)
-                } else
-                    return digit
+                }
+                var prevRow = digit.closest('.apnea').prev('.apnea')
+                if (prevRow.length) {
+                    thisRow.remove()
+                    return prevRow.find('.digit').eq(digitIndex)
+                }
+                return digit
             })
             break;
         default:
@@ -235,7 +240,11 @@ function parseKey(event) {
                     var digitIndex = allDigits.index(digit);
                     if (digitIndex % 3 !== 1 || key <= 5) {
                         digit.text(key)
-                        return allDigits.eq(digitIndex + 1)
+                        if (digitIndex < allDigits.length - 1) return allDigits.eq(digitIndex + 1)
+                        var thisRow = digit.closest('.apnea');
+                        var nextRow = thisRow.clone(true)
+                        nextRow.insertAfter(thisRow)
+                        return nextRow.find('.digit').eq(0)
                     }
                 })
             }
