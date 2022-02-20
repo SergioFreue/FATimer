@@ -143,6 +143,9 @@ function stopwatchTick() {
     if (nowMillis > endMillis) {
         clearInterval(timer)
         console.log('END')
+        let audioEnd = $('#audioend')[0]
+        audioEnd.load()
+        audioEnd.play()
 
         var nextRow = $('.plan .apnea.running').next('.apnea')
         $('.plan .apnea.running').removeClass('running')
@@ -256,7 +259,7 @@ var audios
 
 function prepareAudio() {
     audios = []
-    $('audio').each((idx, audio) => {
+    $('audio.countdown').each((idx, audio) => {
         var digits = audio.id.substr(5).split('').map(digit => parseInt(digit))
         var millis = 1000 * (60 * (10 * digits[0] + digits[1]) + 10 * digits[2] + digits[3])
         audios.push({millis, audio})
